@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)https://www.nextgensell.com/RetailBackOffice/chatbot -->
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omphile AI Assistant</title>
+
+  <link href="https://www.nextgensell.com/static/assets/img/favicon.png" rel="icon">
+  <link href="https://www.nextgensell.com/static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+</head>
+
+<body>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #00000080;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #000000cc;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #ccceeb;
+      font-family: 'Manrope', 'Roboto', 'Arial';
+      padding: 1em;
+      gap: 1em;
+    }
+
+    hr {
+      width: 75%;
+      height: 1px;
+      margin: auto;
+      border: none;
+      background: #00000020;
+    }
+
+    .icon {
+      cursor: pointer;
+      transition: all ease 0.5s;
+
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+
+    .person {
+      --size: 2em;
+
+      width: fit-content;
+      min-width: var(--size);
+      min-height: var(--size);
+
+      position: relative;
+
+      background-image: url('https://www.nextgensell.com/static/assets3/AI.webp');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+
+      border-radius: 50%;
+
+      &.avatar {
+        --size: 3em;
+      }
+
+      &.photo {
+        --size: 6em;
+
+        .status {
+          --size: 1.5em;
+        }
+      }
+
+      .status {
+        --size: 0.75em;
+        width: fit-content;
+        min-width: var(--size);
+        min-height: var(--size);
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        border-radius: 50%;
+      }
+
+      .status.connected {
+        background: #09db84;
+        /* Green for connected */
+      }
+
+      .status.disconnected {
+        background: #f70546;
+        /* Red for disconnected */
+      }
+
+      .status.away {
+        background: #f7e705;
+        /* Yellow for away */
+      }
+    }
+
+    .chat {
+      --bg: #fff;
+      --bg-secundary: #e1e1e8;
+      --bg-highlight: #057ef7;
+      --color: #2a2b2e;
+
+      &.dark {
+        --bg: #1f2024;
+        --bg-secundary: #292a30;
+        --color: #dde4f0;
+      }
+
+      &[data-color='red'] {
+        --bg-highlight: #f70546;
+      }
+
+      &[data-color='green'] {
+        --bg-highlight: #10915c;
+      }
+
+      &[data-color='purple'] {
+        --bg-highlight: #b600f2;
+      }
+
+      max-width:960px;
+      width:100%;
+      height:95%;
+
+      display:flex;
+      flex-direction:row;
+      justify-content:center;
+      align-items:flex-start;
+
+      position:relative;
+
+      color:var(--color);
+      background:var(--bg);
+      border-radius:8px;
+
+      overflow:hidden;
+      box-shadow:0 8px 8px -4px #00000020;
+      transition:all ease 0.5s;
+
+      .conversation {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+
+        transition: all ease 0.5s;
+
+        .head {
+          width: 100%;
+          min-height: 4em;
+
+          display: flex;
+          align-items: center;
+          gap: 1em;
+
+          background: var(--bg-secundary);
+          padding: 0.5em;
+
+          .buttons {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            margin-left: auto;
+          }
+        }
+
+        .messages {
+          width: 100%;
+          height: 100%;
+
+          display: flex;
+          flex-direction: column;
+          gap: 0.25em;
+
+          padding: 1em;
+          overflow: auto;
+
+          .time {
+            width: fit-content;
+            font-size: 0.75em;
+
+            margin: 0 auto;
+            padding: 0.5em;
+
+            border-radius: 6px;
+            background: #00000020;
+          }
+
+          .msg-text {
+            width: fit-content;
+            font-size: 0.85em;
+
+            animation: appear-msg ease 0.25s forwards;
+
+            .text {
+              display: block;
+              padding: 0.75em;
+              border-radius: 0.75em 0.75em 0.75em 0;
+              background: var(--bg-secundary);
+              box-shadow: 0 2px 0 #00000020;
+            }
+
+            &.owner {
+              margin-left: auto;
+
+              .text {
+                color: #fff;
+                background: var(--bg-highlight);
+                border-radius: 0.75em 0.75em 0 0.75em;
+              }
+            }
+          }
+        }
+
+        .field {
+          width: 100%;
+          height: 4em;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5em;
+
+          padding: 0.25em 0.5em;
+          border-top: 1px solid var(--bg-secundary);
+
+          transition: all ease 0.5s;
+
+          .input-message {
+            width: 100%;
+            height: 100%;
+
+            border: none;
+            outline: none;
+            padding: 0.5em 1em;
+
+            border-radius: 50px;
+
+            color: var(--color);
+            background: var(--bg-secundary);
+
+            transition: all ease 0.5s;
+          }
+
+          .input-message:placeholder-shown {
+            ~.text {
+              display: none;
+            }
+          }
+
+          .input-message:not(:placeholder-shown) {
+            ~.plus {
+              display: none;
+            }
+
+            ~.audio {
+              display: none;
+            }
+          }
+
+          .plus {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 0.5em;
+            border-radius: 50%;
+
+            background: var(--bg-secundary);
+          }
+
+          .send {
+            min-width: 32px;
+
+            display: flex;
+            align-items: center;
+
+            color: #fff;
+            background: var(--bg-highlight);
+            padding: 0.5em;
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            .audio {
+              display: none;
+            }
+          }
+        }
+      }
+
+      .options {
+        min-width: 50%;
+        height: 100%;
+
+        padding: 0.5em;
+        border-left: 1px solid var(--bg-secundary);
+        background: var(--bg);
+
+        position: absolute;
+        right: -100%;
+
+        overflow: auto;
+
+        transition: all ease 0.5s;
+
+        &.active {
+          right: 0;
+        }
+
+        .head {
+          display: flex;
+          align-items: center;
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5em;
+        }
+
+        .buttons {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 1em;
+
+          .button {
+            text-align: center;
+
+            .icon {
+              --size: 2em;
+              width: var(--size);
+              height: var(--size);
+
+              display: flex;
+              justify-content: center;
+              align-items: center;
+
+              padding: 0.5em;
+              margin: auto;
+              background: var(--bg-secundary);
+              border-radius: 50%;
+            }
+
+            .title {
+              font-size: 0.9em;
+              margin: 0.25em;
+              opacity: 0.5;
+            }
+          }
+        }
+
+        .details {
+          width: 100%;
+
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+
+          font-size: 0.9em;
+
+          padding: 1em 2em;
+
+          >* {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 1em 0;
+            border-bottom: 1px solid #00000020;
+          }
+
+          .search-field {
+            .icon {
+              display: flex;
+              align-items: center;
+            }
+
+            .search {
+              width: 100%;
+              padding: 0.25em;
+              border: none;
+              outline: none;
+              background: transparent;
+            }
+          }
+
+          .dark-mode {
+            .input-dark {
+              display: none;
+            }
+
+            .input-dark:checked~.toggle {
+              .circle {
+                left: 50%;
+                background: var(--bg-highlight);
+              }
+            }
+
+            .toggle {
+              cursor: pointer;
+
+              --size: 1.5em;
+              width: calc(var(--size) * 2);
+              height: var(--size);
+
+              position: relative;
+
+              border-radius: var(--size);
+              outline: 2px solid var(--bg-secundary);
+
+              .circle {
+                width: var(--size);
+                height: var(--size);
+
+                position: relative;
+                left: 0;
+
+                background: var(--bg-secundary);
+                border-radius: var(--size);
+
+                transition: all ease 0.5s;
+              }
+            }
+          }
+
+          .theme {
+            .colors {
+              display: flex;
+              gap: 0.5em;
+
+              .color {
+                cursor: pointer;
+
+                --size: 1.25em;
+                width: var(--size);
+                height: var(--size);
+                border-radius: 50%;
+
+                &:hover {
+                  outline: 2px solid var(--bg-secundary);
+                }
+
+                &.blue {
+                  background: #057ef7;
+                }
+
+                &.red {
+                  background: #f70546;
+                }
+
+                &.green {
+                  background: #10915c;
+                }
+
+                &.purple {
+                  background: #b600f2;
+                }
+              }
+            }
+          }
+
+          .media {
+            flex-direction: column;
+            gap: 1em;
+
+            .label {
+              display: flex;
+              align-items: center;
+              gap: 0.5em;
+            }
+
+            .photos {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              grid-auto-rows: 96px;
+              grid-column-gap: 6px;
+              grid-row-gap: 6px;
+
+              .img {
+                cursor: pointer;
+
+                height: 100%;
+                width: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+                object-position: center;
+              }
+            }
+          }
+
+          .view-more {
+            cursor: pointer;
+
+            width: fit-content;
+            margin: auto;
+
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+
+            color: var(--bg-highlight);
+            background: #00000005;
+            border-radius: 8px;
+
+            padding: 0.5em;
+          }
+        }
+      }
+    }
+
+    .social {
+      width: 100%;
+
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1em;
+
+      .button {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+
+        color: #000;
+        text-decoration: none;
+      }
+    }
+
+    @media screen and (max-width:768px) {
+      .chat {
+
+        .conversation,
+        .options {
+          width: 100%;
+        }
+      }
+    }
+
+    @keyframes appear-msg {
+      from {
+        opacity: 0;
+        transform: translateY(50%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* Add the pulse animation */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+
+      50% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+    }
+
+    .calling {
+      animation: pulse 1s infinite;
+      color: green;
+
+    }
+
+    .end-call-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+      /* Hidden initially */
+    }
+  </style>
+  <div id="chat" class="chat">
+    <div class="conversation">
+      <div class="head">
+        <div class="person avatar">
+          <div class="status connected"></div>
+        </div>
+        <div>
+          <h3 class="person-name" style="margin-bottom:0px;margin-top:-1px">Omphile (AI)</h3>
+          <span style="font-size:15px;" class="status-text">Connected</span>
+        </div>
+        <div class="buttons">
+          <svg title="Call" class="audio-call icon" stroke="currentColor" fill="none" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1.25em" width="1.25em"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+          </svg>
+
+          <button id="endCallButton" class="end-call-button" disabled>End Call</button>
+          <audio id="remoteAudio" autoplay></audio>
+
+          <svg title="Video-call" class="video-call icon" stroke="currentColor" fill="none" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1.25em" width="1.25em"
+            xmlns="http://www.w3.org/2000/svg">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+          <svg id="button-options" class="button-option icon" stroke="currentColor" fill="none" stroke-width="2"
+            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1.25em" width="1.25em"
+            xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+      </div>
+
+      <div id="messages" class="messages">
+        <div class="time">Today</div>
+
+
+
+
+        <div class="msg-text"><span class="text">Good evening! Hope you had a wonderful day.</span></div>
+        <div class="msg-text"><span class="text">I am Omphile, your personal AI assistant.</span></div>
+      </div>
+      <style>
+        .recording {
+          background-color: red !important;
+
+        }
+      </style>
+      <div class="field">
+        <svg class="emoji icon" stroke="currentColor" fill="none" stroke-width="0" viewBox="0 0 24 24" height="1em"
+          width="1em" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <input id="input-message" class="input-message" type="text" placeholder="Type something...">
+        <div class="icon plus">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+            stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+            </path>
+          </svg>
+        </div>
+        <div id="send-text" class="icon send text">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+            stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </div>
+        <div id="send-audio" class="icon send audio">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+            stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="options" class="options">
+      <div class="head">
+        <div id="close-options" class="close icon">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+            stroke-linejoin="round" height="2em" width="2em" xmlns="http://www.w3.org/2000/svg">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <div class="info">
+        <div class="person photo">
+          <div class="status connected"></div>
+        </div>
+        <h2 class="name">Omphile</h2>
+
+        <div class="buttons">
+          <div class="button">
+            <div class="icon">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                </path>
+              </svg>
+            </div>
+            <p class="title">Audio</p>
+          </div>
+          <div class="button">
+            <div class="icon">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+              </svg>
+            </div>
+            <p class="title">Video</p>
+          </div>
+          <div class="button">
+            <div class="icon">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <p class="title">Profile</p>
+          </div>
+          <div class="button">
+            <div class="icon">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            </div>
+            <p class="title">Mute</p>
+          </div>
+        </div>
+        <hr>
+        <div class="details">
+          <label class="search-field">
+            <div class="icon">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input id="search" class="search" type="text" placeholder="Search">
+          </label>
+          <label class="dark-mode">
+            <span class="label">Dark Mode</span>
+            <input id="input-dark" class="input-dark" type="checkbox">
+            <div class="toggle">
+              <div class="circle"></div>
+            </div>
+          </label>
+          <div class="theme">
+            <span class="label">Theme</span>
+            <div class="colors">
+              <div id="color-blue" class="color blue"></div>
+              <div id="color-red" class="color red"></div>
+              <div id="color-green" class="color green"></div>
+              <div id="color-purple" class="color purple"></div>
+            </div>
+          </div>
+          <div class="media">
+            <span class="label">
+              <svg stroke="currentColor" fill="none" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                </path>
+              </svg>
+              <span>Shared photos</span>
+            </span>
+            <div class="photos">
+              <img class="img" src="./Omphile AI Assistant_files/8jqYvFL.jpeg">
+              <img class="img" src="./Omphile AI Assistant_files/jlFgGpe.jpeg">
+              <img class="img" src="./Omphile AI Assistant_files/BfyXuwR.gif">
+            </div>
+            <span class="view-more">View more</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const getRandomMessage = (timeOfDay) => {
+      const messages = {
+        morning: ["Good morning! Have a great day ahead!", "Rise and shine! It's a beautiful morning.", "Top of the morning to you!"],
+        afternoon: ["Good afternoon! Hope your day is going well.", "Hello! Wishing you a pleasant afternoon.", "Good afternoon! Keep up the great work."],
+        evening: ["Good evening! Hope you had a wonderful day.", "Good evening! Time to relax and unwind.", "Evening! Hope you had a productive day."]
+      };
+
+      const selectedMessages = messages[timeOfDay];
+      const randomIndex = Math.floor(Math.random() * selectedMessages.length);
+      return selectedMessages[randomIndex];
+    };
+
+    const getTimeOfDay = () => {
+      const hours = new Date().getHours();
+      if (hours < 12) {
+        return "morning";
+      } else if (hours < 18) {
+        return "afternoon";
+      } else {
+        return "evening";
+      }
+    };
+
+  </script>
+  <script>
+
+    function updateStatus(status) {
+      // Get all elements with the class 'status'
+      const statusElements = document.querySelectorAll('.status');
+      const statusTextElements = document.querySelectorAll('.status-text');
+
+      // Loop through each element and update its classes
+      statusElements.forEach(element => {
+        // Clear all status classes
+        element.classList.remove('connected', 'disconnected', 'away');
+
+        // Add the appropriate class based on status
+        if (status === 'connected') {
+          element.classList.add('connected');
+          statusTextElements.forEach(textElement => {
+            textElement.innerText = "Connected";
+          });
+        } else if (status === 'disconnected') {
+          element.classList.add('disconnected');
+          statusTextElements.forEach(textElement => {
+            textElement.innerText = "Disconnected";
+          });
+        } else if (status === 'away') {
+          element.classList.add('away');
+          statusTextElements.forEach(textElement => {
+            textElement.innerText = "Establishing...";
+          });
+        }
+      });
+    }
+
+
+    // Update the status at different intervals
+
+    updateStatus('away')
+
+
+
+  </script>
+  <audio id="callSound" src="https://www.nextgensell.com/static/539378-Phone-Digital-Ringing-04-01-LOOP-WET.wav"
+    preload="auto"></audio>
+  <script>
+    document.getElementById('button-options').addEventListener('click', function () {
+      document.getElementById('options').classList.toggle('active');
+    });
+
+    document.getElementById('close-options').addEventListener('click', function () {
+      document.getElementById('options').classList.remove('active');
+    });
+
+
+
+    var themeColors = document.querySelectorAll('.theme .color');
+    themeColors.forEach(function (color) {
+      color.addEventListener('click', function () {
+        document.getElementById('chat').setAttribute('data-color', this.dataset.color);
+      });
+    });
+  </script>
+  <script src="./Omphile AI Assistant_files/socket.io.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const socket = io('https://nextgenai-production.up.railway.app/');
+      var isInitialisedChat = 0;
+      // Handle connection
+      socket.on('connect', () => {
+        console.log('Connected to the Socket.IO server');
+        updateStatus('connected');
+        if (!isInitialisedChat) {
+          const timeOfDay = getTimeOfDay();
+          const message = getRandomMessage(timeOfDay);
+          addMessageToChat(message, false); // Message from the server
+          addMessageToChat("I am Omphile, your personal AI assistant.", false);
+          isInitialisedChat++;
+        } else if (isInitialisedChat == 1) {
+          addMessageToChat("Hey, I am back  online. I might have forgotten what we spoke about earlier on, but feel free to remind me if neccesary.", false);
+          isInitialisedChat++;
+        }
+        else {
+          addMessageToChat("Hey, I am back  online.", false);
+        }
+        console.log('Connected to the Socket.IO server');
+      });
+
+      // Handle incoming messages
+      socket.on('message', (messageData) => {
+        addMessageToChat(messageData, false); // Assuming false for non-owner messages
+      });
+
+      socket.on('response', (data) => {
+        addMessageToChat(data, false);
+      });
+      // Handle disconnection
+      socket.on('disconnect', () => {
+        console.log('Disconnected from the Socket.IO server');
+        updateStatus('disconnected');
+      });
+
+      // Send a message to the server
+      const sendMessage = (message) => {
+        socket.emit('message', message);
+        addMessageToChat(message, true); // Assuming true for owner messages
+      };
+
+      // Handle send button click
+      const inputMessage = document.getElementById('input-message');
+      const sendButton = document.getElementById('send-text');
+
+      sendButton.addEventListener('click', () => {
+        const message = inputMessage.value;
+        if (message) {
+          sendMessage(message);
+          inputMessage.value = '';
+        }
+      });
+
+      // Handle Enter key press
+      inputMessage.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          const message = inputMessage.value;
+          if (message) {
+            sendMessage(message);
+            inputMessage.value = '';
+          }
+        }
+      });
+
+      // Add a message to the chat
+      const addMessageToChat = (message, isOwner) => {
+        const messagesContainer = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('msg-text');
+        if (isOwner) {
+          messageElement.classList.add('owner');
+        }
+        const textElement = document.createElement('span');
+        textElement.classList.add('text');
+        textElement.textContent = message;
+        messageElement.appendChild(textElement);
+        messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      };
+    })
+  </script>
+
+  <script>
+    document.getElementById('send-audio').addEventListener('click', () => {
+      // Check if the browser supports the Web Speech API
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Sorry, your browser does not support the Web Speech API. Please use Google Chrome.');
+        return;
+      }
+
+      // Create a new instance of SpeechRecognition
+      const recognition = new webkitSpeechRecognition();
+
+      // Set the recognition language
+      recognition.lang = 'en-US';
+
+      // Start the speech recognition
+      recognition.start();
+
+      // Add the recording class to change the icon color
+      const audioIcon = document.getElementById('send-audio');
+      audioIcon.classList.add('recording');
+
+      // Handle the result event
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('input-message').value = transcript;
+      };
+
+      // Handle the end event
+      recognition.onend = () => {
+        console.log('Speech recognition ended.');
+        // Remove the recording class to revert the icon color
+        audioIcon.classList.remove('recording');
+      };
+
+      // Handle errors
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        // Remove the recording class to revert the icon color
+        audioIcon.classList.remove('recording');
+      };
+    });
+  </script>
+  <!--voice call-->
+  <script type="module">
+    import { Peer } from "https://esm.sh/peerjs@1.5.4?bundle-deps";
+
+    const peer = new Peer();
+    let localStream;
+    let currentCall;
+    let isPlaying = false;
+    let callInterval; // Global variable for call timer
+    let callStartTime; // Global variable to store call start time
+
+    const callButton = document.querySelector('.audio-call.icon'); // Call button (icon)
+    const endCallButton = document.getElementById('endCallButton'); // End call button
+    const statusText = document.querySelector('.status-text'); // Status text element
+    const audio = document.getElementById('callSound'); // Audio element for call sound
+    const remoteAudio = document.getElementById('remoteAudio'); // Audio element for remote audio
+
+    peer.on('open', id => {
+      console.log('My peer ID is:', id);
+      alert(`Your peer ID is: ${id}. Share this ID with the other user.`);
+      fetch('/call?peer_id=' + encodeURIComponent(id), { method: 'GET' });
+    });
+
+    peer.on('error', error => {
+      console.error('PeerJS error:', error);
+      alert('PeerJS error: ' + error.message);
+    });
+
+    peer.on('close', () => {
+      const id = peer.id;
+      fetch(`/disconnect?peer_id=${encodeURIComponent(id)}`, { method: 'GET' });
+    });
+
+    function startCall(peerId) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          localStream = stream;
+          currentCall = peer.call(peerId, stream); // Initiate the call
+          currentCall.on('stream', remoteStream => {
+            remoteAudio.srcObject = remoteStream; // Play remote audio stream
+            statusText.innerText = "Connected"; // Update status text
+            audio.pause(); // Stop the calling sound
+            isPlaying = false;
+            callButton.classList.remove('calling'); // Update call button status
+            endCallButton.style.display = 'inline'; // Show end call button
+
+            // Start call timer
+            callStartTime = Date.now();
+            callInterval = setInterval(updateCallDuration, 1000);
+          });
+          currentCall.on('close', () => {
+            endCall(); // End call if the remote side closes the call
+          });
+        })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+          alert('Error accessing media devices: ' + error.message);
+        });
+    }
+
+    function endCall() {
+      if (currentCall) {
+        currentCall.close();
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      callButton.classList.remove('calling');
+      statusText.innerText = "Call Ended";
+      endCallButton.style.display = 'none';
+      isPlaying = false;
+      audio.pause(); // Ensure audio stops playing
+      audio.currentTime = 0; // Reset audio to start
+  
+      // Clear call timer
+      clearInterval(callInterval);
+    }
+
+    // Update call duration
+    function updateCallDuration() {
+      const duration = Math.floor((Date.now() - callStartTime) / 1000); // in seconds
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      statusText.innerText = `In Call - ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    callButton.addEventListener('click', () => {
+      if (isPlaying) {
+        // If already playing, stop the audio and end the call
+        endCall(); // End the call if playing
+      } else {
+        // If not playing, prompt for peer ID and start the call
+        const peerId = window.prompt('Enter the peer ID to call:'); // Prompt user for peer ID
+        if (peerId) {
+          callButton.classList.add('calling');
+          statusText.innerText = "Calling...";
+          audio.play(); // Play the call sound
+          isPlaying = true;
+          startCall(peerId); // Initiate the call with the provided peer ID
+        } else {
+          alert('No peer ID provided.');
+        }
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      if (isPlaying) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    });
+
+    endCallButton.addEventListener('click', () => {
+      console.log('End Call button clicked');
+      endCall();
+    });
+
+    window.onload = () => {
+      const peerId = new URLSearchParams(window.location.search).get('peer_id');
+      if (peerId) {
+        startCall(peerId); // Automatically start call if peer ID is in URL
+      }
+    };
+  </script>
+
+
+  <!--voice call end-->
+
+</body>
+
+</html>

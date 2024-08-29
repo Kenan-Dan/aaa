@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer Test</title>
+</head>
+
+<body>
+    <script type="module">
+        import { Peer } from "https://esm.sh/peerjs@1.5.4?bundle-deps"
+
+        var peer = new Peer();
+        peer.on('open', function (id) {
+            console.log('My peer ID is: ' + id);
+        });
+
+        function Callforward(peerId) {
+            const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            getUserMedia({ audio: true }, function (stream) {
+                const call = peer.call(peerId, stream);
+                call.on('stream', function (remoteStream) {
+                    // Show stream in some video/canvas element.
+                });
+            }, function (err) {
+                console.log('Failed to get local stream', err);
+            });
+        }
+        function ReceiveCall(offer) {
+
+            const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            peer.on('call', function (call) {
+                getUserMedia({ video: true, audio: true }, function (stream) {
+                    call.answer(stream); // Answer the call with an A/V stream.
+                    call.on('stream', function (remoteStream) {
+                        // Show stream in some video/canvas element.
+                    });
+                }, function (err) {
+                    console.log('Failed to get local stream', err);
+                });
+            });
+        }
+
+        function startCall() {
+    const peerId = new URLSearchParams(window.location.search).get('peer_id');
+    if (peerId) {
+      // Get user media with only audio enabled
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          localStream = stream;
+          currentCall = peer.call(peerId, stream);
+          currentCall.on('stream', remoteStream => {
+            // In a voice-only call, you won't display video, but you might want to handle remote audio
+            // For example, you might want to play the remote audio through an <audio> element
+          });
+        })
+        .catch(error => {
+          console.error('Error accessing media devices.', error);
+          alert('Error accessing media devices: ' + error.message);
+        });
+    } else {
+      alert('No peer ID provided. Please provide a peer ID in the URL.');
+    }
+  }
+    </script>
+</body>
+
+</html>
+
