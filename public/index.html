@@ -264,6 +264,9 @@
         <div class="call-duration" id="callDuration"></div> <!--  call duration element -->
         <div class="call-controls">
             <button id="answerCall" class="control-button">Answer</button>
+            <audio id="callSound"
+                src="https://www.nextgensell.com/static/539378-Phone-Digital-Ringing-04-01-LOOP-WET.wav"
+                preload="auto"></audio>
             <audio id="remoteAudio" autoplay></audio>
             <button id="endCall" class="control-button">End Call</button>
             <audio id="remoteAudio" autoplay></audio>
@@ -340,11 +343,12 @@
         // UI elements
         const callInterface = document.getElementById('callInterface');
         const callStatus = document.getElementById('callStatus');
-        const callDuration = document.getElementById('callDuration'); // New element for call duration
+        const callDuration = document.getElementById('callDuration');
         const answerCall = document.getElementById('answerCall');
+        const audio = document.getElementById('callSound');
         const endCall = document.getElementById('endCall');
         const micToggle = document.getElementById('micToggle');
-        const videoToggle = document.getElementById('videoToggle'); // Video toggle button
+        const videoToggle = document.getElementById('videoToggle');
         const incomingCallDialog = document.getElementById('incomingCallDialog');
         const remoteAudio = document.getElementById('remoteAudio');
         const localAudio = document.getElementById('localAudio');
@@ -354,6 +358,7 @@
         let incomingCall;
         let callStartTime;
         let callInterval;
+        let isPlaying = false;
 
         // Get user media and set up local audio
         navigator.mediaDevices.getUserMedia({ audio: true })
@@ -367,7 +372,10 @@
                 peer.on('call', call => {
                     incomingCall = call;
                     callStatus.innerText = 'Incoming call...';
+                    audio.play(); // Start ringing sound
+                    isPlaying = true; // Mark that the sound is playing
                     callInterface.style.display = 'block';
+                    incomingCallDialog.style.display = 'block';
                 });
             })
             .catch(error => {
@@ -385,7 +393,7 @@
             console.error('PeerJS error:', error);
             alert('PeerJS error: ' + error.message);
         });
-        
+
         peer.on('close', () => {
             const id = peer.id;
             fetch(`/disconnect?peer_id=${encodeURIComponent(id)}`, { method: 'GET' });
@@ -394,56 +402,73 @@
         // Accept the incoming call
         answerCall.addEventListener('click', () => {
             callStatus.innerText = 'In Call';
-            incomingCall.answer(localStream);
-            incomingCall.on('stream', remoteStream => {
-                remoteAudio.srcObject = remoteStream;
-            });
-            incomingCallDialog.style.display = 'none';
-            callInterface.style.display = 'block';
+            if (incomingCall) {
+                incomingCall.answer(localStream);
+                incomingCall.on('stream', remoteStream => {
+                    remoteAudio.srcObject = remoteStream;
+                    isPlaying = false;
+                    audio.pause(); // Stop ringing sound
+                    audio.currentTime = 0; // Reset audio to start
+                });
+                incomingCallDialog.style.display = 'none';
+                callInterface.style.display = 'block';
 
-            // Start call timer
-            callStartTime = Date.now();
-            callInterval = setInterval(updateCallDuration, 1000);
+                // Start call timer
+                callStartTime = Date.now();
+                callInterval = setInterval(updateCallDuration, 1000);
 
-            currentCall = incomingCall;
+                currentCall = incomingCall;
 
-            currentCall.on('close', () => {
-                clearInterval(callInterval);
-                callStatus.innerText = 'Call Ended';
-                callDuration.innerText = ''; // Clear call duration when the call ends
-            });
+                currentCall.on('close', () => {
+                    clearInterval(callInterval);
+                    callStatus.innerText = 'Call Ended';
+                    callDuration.innerText = ''; // Clear call duration when the call ends
+                });
+            }
+        });
+
+        // Handle audio ended event to loop the ring sound
+        audio.addEventListener('ended', () => {
+            if (isPlaying) {
+                audio.currentTime = 0;
+                audio.play();
+            }
         });
 
         // End the call
         endCall.addEventListener('click', () => {
             callStatus.innerText = 'Ending Call...';
-            if (currentCall) {
-                currentCall.close();
+            if (incomingCall) {
+                incomingCall.close(); // End the call if not accepted
             }
-            localStream.getTracks().forEach(track => track.stop());
+            if (currentCall) {
+                currentCall.close(); // End the call if already accepted
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
             callInterface.style.display = 'none';
-            setTimeout(() => window.location.href = '/', 2000); // Redirect after 2 seconds
+            audio.pause(); // Stop ringing sound
+            audio.currentTime = 0; // Reset audio to start
             callDuration.innerText = '';
         });
 
         // Toggle microphone
         micToggle.addEventListener('click', () => {
-            micToggle.innerText = micToggle.innerText === 'Mic Off' ? 'Mic On' : 'Mic Off';
-            micToggle.classList.toggle('active');
-            localStream.getAudioTracks().forEach(track => {
-                track.enabled = !track.enabled;
-            });
+            micToggle.classList.toggle('disabled');
+            localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
         });
 
+        // Update call duration
         function updateCallDuration() {
             const duration = Math.floor((Date.now() - callStartTime) / 1000); // in seconds
             const minutes = Math.floor(duration / 60);
             const seconds = duration % 60;
-            callDuration.innerText = `Duration: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            console.log(`Duration updated: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+            callDuration.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
-
     </script>
+
+
 
 </body>
 

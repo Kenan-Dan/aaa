@@ -640,7 +640,7 @@
           <button id="endCallButton" class="end-call-button" disabled>End Call</button>
           <audio id="remoteAudio" autoplay></audio>
 
-         <!-- <svg title="Video-call" class="video-call icon" stroke="currentColor" fill="none" stroke-width="2"
+          <!--<svg title="Video-call" class="video-call icon" stroke="currentColor" fill="none" stroke-width="2"
             viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1.25em" width="1.25em"
             xmlns="http://www.w3.org/2000/svg">
             <polygon points="23 7 16 12 23 17 23 7"></polygon>
@@ -901,6 +901,7 @@
     });
   </script>
   <script src="./Omphile AI Assistant_files/socket.io.min.js"></script>
+  <!-- chaa start-->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const socket = io('https://nextgenai-production.up.railway.app/');
@@ -1016,14 +1017,12 @@
       // Handle the end event
       recognition.onend = () => {
         console.log('Speech recognition ended.');
-        // Remove the recording class to revert the icon color
         audioIcon.classList.remove('recording');
       };
 
       // Handle errors
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        // Remove the recording class to revert the icon color
         audioIcon.classList.remove('recording');
       };
     });
@@ -1036,122 +1035,121 @@
     let localStream;
     let currentCall;
     let isPlaying = false;
-    let callInterval; // Global variable for call timer
-    let callStartTime; // Global variable to store call start time
+    let callInterval; 
+    let callStartTime; 
 
-    const callButton = document.querySelector('.audio-call.icon'); // Call button (icon)
-    const endCallButton = document.getElementById('endCallButton'); // End call button
-    const statusText = document.querySelector('.status-text'); // Status text element
-    const audio = document.getElementById('callSound'); // Audio element for call sound
-    const remoteAudio = document.getElementById('remoteAudio'); // Audio element for remote audio
+    const callButton = document.querySelector('.audio-call.icon'); 
+    const endCallButton = document.getElementById('endCallButton');
+    const statusText = document.querySelector('.status-text'); 
+    const audio = document.getElementById('callSound'); 
+    const remoteAudio = document.getElementById('remoteAudio'); 
 
     peer.on('open', id => {
-      console.log('My peer ID is:', id);
-      alert(`Your peer ID is: ${id}. Share this ID with the other user.`);
-      fetch('/call?peer_id=' + encodeURIComponent(id), { method: 'GET' });
+        console.log('My peer ID is:', id);
+        alert(`Your peer ID is: ${id}. Share this ID with the other user.`);
+        fetch('/call?peer_id=' + encodeURIComponent(id), { method: 'GET' });
     });
 
     peer.on('error', error => {
-      console.error('PeerJS error:', error);
-      alert('PeerJS error: ' + error.message);
+        console.error('PeerJS error:', error);
+        alert('PeerJS error: ' + error.message);
     });
 
     peer.on('close', () => {
-      const id = peer.id;
-      fetch(`/disconnect?peer_id=${encodeURIComponent(id)}`, { method: 'GET' });
+        const id = peer.id;
+        fetch(`/disconnect?peer_id=${encodeURIComponent(id)}`, { method: 'GET' });
     });
 
     function startCall(peerId) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          localStream = stream;
-          currentCall = peer.call(peerId, stream); // Initiate the call
-          currentCall.on('stream', remoteStream => {
-            remoteAudio.srcObject = remoteStream; // Play remote audio stream
-            statusText.innerText = "Connected"; // Update status text
-            audio.pause(); // Stop the calling sound
-            isPlaying = false;
-            callButton.classList.remove('calling'); // Update call button status
-            endCallButton.style.display = 'inline'; // Show end call button
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                localStream = stream;
+                currentCall = peer.call(peerId, stream); // Initiate the call
+                currentCall.on('stream', remoteStream => {
+                    remoteAudio.srcObject = remoteStream; // Play remote audio stream
+                    statusText.innerText = "Connected"; // Update status text
+                    audio.pause(); // Stop the calling sound
+                    isPlaying = false;
+                    callButton.classList.remove('calling'); // Update call button status
+                    endCallButton.style.display = 'inline'; // Show end call button
 
-            // Start call timer
-            callStartTime = Date.now();
-            callInterval = setInterval(updateCallDuration, 1000);
-          });
-          currentCall.on('close', () => {
-            endCall(); // End call if the remote side closes the call
-          });
-        })
-        .catch(error => {
-          console.error('Error accessing media devices.', error);
-          alert('Error accessing media devices: ' + error.message);
-        });
+                    // Start call timer
+                    callStartTime = Date.now();
+                    callInterval = setInterval(updateCallDuration, 1000);
+                });
+                currentCall.on('close', () => {
+                    endCall(); // End call if the remote side closes the call
+                });
+            })
+            .catch(error => {
+                console.error('Error accessing media devices.', error);
+                alert('Error accessing media devices: ' + error.message);
+            });
     }
 
     function endCall() {
-      if (currentCall) {
-        currentCall.close();
-      }
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-      callButton.classList.remove('calling');
-      statusText.innerText = "Call Ended";
-      endCallButton.style.display = 'none';
-      isPlaying = false;
-      audio.pause(); // Ensure audio stops playing
-      audio.currentTime = 0; // Reset audio to start
-  
-      // Clear call timer
-      clearInterval(callInterval);
+        if (currentCall) {
+            currentCall.close();
+        }
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+        callButton.classList.remove('calling');
+        statusText.innerText = "Call Ended";
+        endCallButton.style.display = 'none';
+        isPlaying = false;
+        audio.pause(); // Ensure audio stops playing
+        audio.currentTime = 0; // Reset audio to start
+        // Clear call timer
+        clearInterval(callInterval);
     }
 
     // Update call duration
     function updateCallDuration() {
-      const duration = Math.floor((Date.now() - callStartTime) / 1000); // in seconds
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60;
-      statusText.innerText = `In Call - ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        const duration = Math.floor((Date.now() - callStartTime) / 1000); // in seconds
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        statusText.innerText = `In Call - ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
 
     callButton.addEventListener('click', () => {
-      if (isPlaying) {
-        // If already playing, stop the audio and end the call
-        endCall(); // End the call if playing
-      } else {
-        // If not playing, prompt for peer ID and start the call
-        const peerId = window.prompt('Enter the peer ID to call:'); // Prompt user for peer ID
-        if (peerId) {
-          callButton.classList.add('calling');
-          statusText.innerText = "Calling...";
-          audio.play(); // Play the call sound
-          isPlaying = true;
-          startCall(peerId); // Initiate the call with the provided peer ID
+        if (isPlaying) {
+            endCall(); 
         } else {
-          alert('No peer ID provided.');
+            // If not playing, prompt for peer ID and start the call
+            const peerId = window.prompt('Enter the peer ID to call:'); // Prompt user for peer ID
+            if (peerId) {
+                callButton.classList.add('calling');
+                statusText.innerText = "Calling...";
+                audio.play(); // Play call sound
+                isPlaying = true;
+                startCall(peerId); 
+            } else {
+                alert('No peer ID provided.');
+            }
         }
-      }
     });
 
     audio.addEventListener('ended', () => {
-      if (isPlaying) {
-        audio.currentTime = 0;
-        audio.play();
-      }
+        if (isPlaying) {
+            audio.currentTime = 0;
+            audio.play();
+        }
     });
 
     endCallButton.addEventListener('click', () => {
-      console.log('End Call button clicked');
-      endCall();
+        console.log('End Call button clicked');
+        endCall();
     });
 
     window.onload = () => {
-      const peerId = new URLSearchParams(window.location.search).get('peer_id');
-      if (peerId) {
-        startCall(peerId); // Automatically start call if peer ID is in URL
-      }
+        const peerId = new URLSearchParams(window.location.search).get('peer_id');
+        if (peerId) {
+            startCall(peerId); // Automatically start call if peer ID is in URL
+        }
     };
-  </script>
+</script>
+
 
 
   <!--voice call end-->
